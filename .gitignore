@@ -1,0 +1,16 @@
+# Ignore large ZIP and RAR archives
+*.zip
+*.rar
+*.7z
+
+# Ignore the .zips folder and its contents
+.zips/
+*.exe
+
+# Ignore local PowerShell data
+*.psd1
+*.psm1
+
+# Ignore any local crack tools or binaries
+*Crack*
+*Activation*
