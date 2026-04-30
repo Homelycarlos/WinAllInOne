@@ -206,6 +206,24 @@
         "winget": "Anki.Anki",
         "foss": true
     },
+    "photoshop_2020": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Photoshop 2020 (Custom)",
+        "description": "Custom installation of Adobe Photoshop 2020. Must place 'Photoshop2020.zip' in the .zips folder.",
+        "link": "https://adobe.com/",
+        "winget": "Custom.Photoshop2020",
+        "foss": false
+    },
+    "photoshop_2023": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Photoshop 2023 (Custom)",
+        "description": "Custom installation of Adobe Photoshop 2023. Must place 'Photoshop2023.zip' in the .zips folder.",
+        "link": "https://adobe.com/",
+        "winget": "Custom.Photoshop2023",
+        "foss": false
+    },
     "anydesk": {
         "category": "Utilities",
         "choco": "anydesk",

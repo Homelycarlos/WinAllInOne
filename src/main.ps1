@@ -349,6 +349,36 @@ $window.FindName("btnInstallSelected").Add_Click({
             continue
         }
 
+        if ($appId -match "^Custom\.Photoshop(2020|2023)$") {
+            $year = if ($appId -eq "Custom.Photoshop2020") { "2020" } else { "2023" }
+            Write-Log "Installing Photoshop $year..."
+            $zipPath = Join-Path -Path $PSScriptRoot -ChildPath ".zips\Photoshop$year.zip"
+            
+            if (Test-Path $zipPath) {
+                try {
+                    $extractPath = "$env:TEMP\Photoshop$year"
+                    if (Test-Path $extractPath) { Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue }
+                    Write-Log "Extracting Photoshop $year zip..."
+                    Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+                    
+                    # Search for setup executable (Set-up.exe or setup.exe)
+                    $setupExe = Get-ChildItem -Path $extractPath -Filter "*etup*.exe" -Recurse | Select-Object -First 1
+                    if ($setupExe) {
+                        Write-Log "Running Adobe Installer..."
+                        Start-Process -FilePath $setupExe.FullName -Wait
+                        Write-Log "Photoshop $year installation finished."
+                    } else {
+                        Write-Log "Could not find a setup executable inside the extracted Photoshop zip."
+                    }
+                } catch {
+                    Write-Log "Failed to extract or install Photoshop $year. Error: $_"
+                }
+            } else {
+                Write-Log "Error: Could not find Photoshop$year.zip in the .zips folder. Please download it manually."
+            }
+            continue
+        }
+
         if ($appId -match "^Custom\.VS(2022|2026)Community$") {
             Write-Log "Downloading $($appId) Bootstrapper..."
             try {
