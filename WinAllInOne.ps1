@@ -7004,7 +7004,10 @@ $window.FindName("btnConfigPower").Add_Click({ Start-Process "powercfg.cpl" })
 $window.FindName("btnConfigPrograms").Add_Click({ Start-Process "appwiz.cpl" })
 
 $window.FindName("btnActivateWindows").Add_Click({
-    Write-Log "Initializing Windows Activation (MAS KMS38)..."
+    $edition = (Get-WmiObject Win32_OperatingSystem).Caption
+    Write-Log "Detected Windows Edition: $edition"
+    Write-Log "Initializing Universal Activation (MAS KMS38)..."
+    Write-Log "Note: The script automatically selects the correct GVLK license key for your edition."
     
     if ($sync.scripts.ContainsKey("Activator.cmd")) {
         try {
