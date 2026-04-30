@@ -1,4 +1,22 @@
 {
+    "vs2026_community": {
+        "category": "Development",
+        "choco": "na",
+        "content": "Visual Studio 2026 Community",
+        "description": "Microsoft Visual Studio 2026 Community Edition Web Installer (Direct Link).",
+        "link": "https://visualstudio.microsoft.com/",
+        "winget": "Custom.VS2026Community",
+        "foss": false
+    },
+    "vs2022_community": {
+        "category": "Development",
+        "choco": "na",
+        "content": "Visual Studio 2022 Community",
+        "description": "Microsoft Visual Studio 2022 Community Edition Web Installer (Direct Link).",
+        "link": "https://visualstudio.microsoft.com/",
+        "winget": "Custom.VS2022Community",
+        "foss": false
+    },
     "hxd": {
         "category": "Reverse Engineering",
         "choco": "hxd",

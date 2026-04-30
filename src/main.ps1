@@ -349,6 +349,25 @@ $window.FindName("btnInstallSelected").Add_Click({
             continue
         }
 
+        if ($appId -match "^Custom\.VS(2022|2026)Community$") {
+            Write-Log "Downloading $($appId) Bootstrapper..."
+            try {
+                $dlUrl = if ($appId -eq "Custom.VS2026Community") { "https://aka.ms/vs/18/Stable/vs_community.exe" } else { "https://aka.ms/vs/17/release/vs_community.exe" }
+                $exePath = "$env:TEMP\$($appId).exe"
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                Invoke-WebRequest -Uri $dlUrl -OutFile $exePath -UseBasicParsing
+                
+                if (Test-Path $exePath) {
+                    Write-Log "Launching Visual Studio Installer..."
+                    Start-Process -FilePath $exePath -Wait -NoNewWindow
+                    Write-Log "Visual Studio Setup launched."
+                }
+            } catch {
+                Write-Log "Failed to download $appId. Error: $_"
+            }
+            continue
+        }
+
         try {
             $process = Start-Process -FilePath "winget" -ArgumentList "install --id $appId --exact --accept-package-agreements --accept-source-agreements --silent" -Wait -NoNewWindow -PassThru
             if ($process.ExitCode -eq 0) { Write-Log "Successfully installed $appId." } 

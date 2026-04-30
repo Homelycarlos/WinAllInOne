@@ -2,6 +2,24 @@
 $sync.configs = @{}
 $sync.configs.applications = @'
 {
+    "vs2026_community": {
+        "category": "Development",
+        "choco": "na",
+        "content": "Visual Studio 2026 Community",
+        "description": "Microsoft Visual Studio 2026 Community Edition Web Installer (Direct Link).",
+        "link": "https://visualstudio.microsoft.com/",
+        "winget": "Custom.VS2026Community",
+        "foss": false
+    },
+    "vs2022_community": {
+        "category": "Development",
+        "choco": "na",
+        "content": "Visual Studio 2022 Community",
+        "description": "Microsoft Visual Studio 2022 Community Edition Web Installer (Direct Link).",
+        "link": "https://visualstudio.microsoft.com/",
+        "winget": "Custom.VS2022Community",
+        "foss": false
+    },
     "hxd": {
         "category": "Reverse Engineering",
         "choco": "hxd",
@@ -6335,6 +6353,25 @@ $window.FindName("btnInstallSelected").Add_Click({
                 }
             } catch {
                 Write-Log "Failed to download or install Cheat Engine. Error: $_"
+            }
+            continue
+        }
+
+        if ($appId -match "^Custom\.VS(2022|2026)Community$") {
+            Write-Log "Downloading $($appId) Bootstrapper..."
+            try {
+                $dlUrl = if ($appId -eq "Custom.VS2026Community") { "https://aka.ms/vs/18/Stable/vs_community.exe" } else { "https://aka.ms/vs/17/release/vs_community.exe" }
+                $exePath = "$env:TEMP\$($appId).exe"
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                Invoke-WebRequest -Uri $dlUrl -OutFile $exePath -UseBasicParsing
+                
+                if (Test-Path $exePath) {
+                    Write-Log "Launching Visual Studio Installer..."
+                    Start-Process -FilePath $exePath -Wait -NoNewWindow
+                    Write-Log "Visual Studio Setup launched."
+                }
+            } catch {
+                Write-Log "Failed to download $appId. Error: $_"
             }
             continue
         }
