@@ -172,13 +172,33 @@
             <!-- Installs Tab -->
             <TabItem Header="Installs">
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" Background="#1A1A1A" Padding="10" BorderBrush="#333" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Name="txtSearchInstalls" Grid.Column="0" Margin="0,0,10,0" Padding="5" Background="#222" Foreground="White" BorderBrush="#555" BorderThickness="1" Text="Search apps..." />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Name="btnSelectAllInstalls" Content="Select All" Padding="10,5" Margin="0,0,5,0" Background="#333" />
+                                <Button Name="btnDeselectAllInstalls" Content="Clear" Padding="10,5" Background="#333" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
                         <StackPanel Name="InstallsStackPanel">
                             <!-- Populated dynamically via PowerShell JSON Parsing -->
                             <StackPanel Height="80" /> <!-- Spacer -->
                         </StackPanel>
                     </ScrollViewer>
-                    <Border Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
+                    <Border Grid.Row="2" Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
                         <Button Name="btnInstallSelected" Content="Install Selected Apps" HorizontalAlignment="Right" />
                     </Border>
                 </Grid>
@@ -187,15 +207,36 @@
             <!-- Tweaks Tab -->
             <TabItem Header="Tweaks">
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" Background="#1A1A1A" Padding="10" BorderBrush="#333" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Name="txtSearchTweaks" Grid.Column="0" Margin="0,0,10,0" Padding="5" Background="#222" Foreground="White" BorderBrush="#555" BorderThickness="1" Text="Search tweaks..." Foreground="#888" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Name="btnSelectAllTweaks" Content="Select All" Padding="10,5" Margin="0,0,5,0" Background="#333" />
+                                <Button Name="btnDeselectAllTweaks" Content="Clear" Padding="10,5" Background="#333" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
                         <StackPanel Name="TweaksStackPanel">
                             <!-- Populated dynamically via PowerShell JSON Parsing -->
                             <StackPanel Height="80" /> <!-- Spacer -->
                         </StackPanel>
                     </ScrollViewer>
-                    <Border Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
+                    <Border Grid.Row="2" Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <CheckBox Name="chkTweakRestorePoint" Content="Create Restore Point first" IsChecked="True" VerticalAlignment="Center" Margin="0,0,15,0" />
+                            <Button Name="btnUndoTweaks" Content="Undo Selected" Margin="0,0,10,0" Background="#880000" />
                             <Button Name="btnApplyTweaks" Content="Apply Selected Tweaks" />
                         </StackPanel>
                     </Border>
@@ -312,10 +353,17 @@
             </TabItem>
         </TabControl>
         
-        <!-- Log Output -->
-        <Border Grid.Row="1" Background="#0A0A0A" BorderBrush="#333" BorderThickness="0,1,0,0" Padding="5">
-            <TextBox Name="txtLog" Background="Transparent" Foreground="#00FF00" FontFamily="Consolas" FontSize="12" BorderThickness="0" 
-                     IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
-        </Border>
+        <!-- Bottom Status Bar -->
+        <Grid Grid.Row="1" Background="#0A0A0A">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ProgressBar Name="pbStatus" Grid.Row="0" Height="4" BorderThickness="0" Background="#111" Foreground="#0078D4" IsIndeterminate="False" Maximum="100" />
+            <Border Grid.Row="1" BorderBrush="#333" BorderThickness="0,1,0,0" Padding="5">
+                <TextBox Name="txtLog" Background="Transparent" Foreground="#00FF00" FontFamily="Consolas" FontSize="12" BorderThickness="0" 
+                         IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
+            </Border>
+        </Grid>
     </Grid>
 </Window>

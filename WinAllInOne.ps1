@@ -6287,13 +6287,33 @@ $inputXML = @'
             <!-- Installs Tab -->
             <TabItem Header="Installs">
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" Background="#1A1A1A" Padding="10" BorderBrush="#333" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Name="txtSearchInstalls" Grid.Column="0" Margin="0,0,10,0" Padding="5" Background="#222" Foreground="White" BorderBrush="#555" BorderThickness="1" Text="Search apps..." />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Name="btnSelectAllInstalls" Content="Select All" Padding="10,5" Margin="0,0,5,0" Background="#333" />
+                                <Button Name="btnDeselectAllInstalls" Content="Clear" Padding="10,5" Background="#333" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
                         <StackPanel Name="InstallsStackPanel">
                             <!-- Populated dynamically via PowerShell JSON Parsing -->
                             <StackPanel Height="80" /> <!-- Spacer -->
                         </StackPanel>
                     </ScrollViewer>
-                    <Border Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
+                    <Border Grid.Row="2" Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
                         <Button Name="btnInstallSelected" Content="Install Selected Apps" HorizontalAlignment="Right" />
                     </Border>
                 </Grid>
@@ -6302,15 +6322,36 @@ $inputXML = @'
             <!-- Tweaks Tab -->
             <TabItem Header="Tweaks">
                 <Grid>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0" Background="#1A1A1A" Padding="10" BorderBrush="#333" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Name="txtSearchTweaks" Grid.Column="0" Margin="0,0,10,0" Padding="5" Background="#222" Foreground="White" BorderBrush="#555" BorderThickness="1" Text="Search tweaks..." Foreground="#888" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Name="btnSelectAllTweaks" Content="Select All" Padding="10,5" Margin="0,0,5,0" Background="#333" />
+                                <Button Name="btnDeselectAllTweaks" Content="Clear" Padding="10,5" Background="#333" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" Padding="0,0,15,0">
                         <StackPanel Name="TweaksStackPanel">
                             <!-- Populated dynamically via PowerShell JSON Parsing -->
                             <StackPanel Height="80" /> <!-- Spacer -->
                         </StackPanel>
                     </ScrollViewer>
-                    <Border Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
+                    <Border Grid.Row="2" Background="#1A1A1A" VerticalAlignment="Bottom" Padding="10" BorderBrush="#333" BorderThickness="0,1,0,0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                             <CheckBox Name="chkTweakRestorePoint" Content="Create Restore Point first" IsChecked="True" VerticalAlignment="Center" Margin="0,0,15,0" />
+                            <Button Name="btnUndoTweaks" Content="Undo Selected" Margin="0,0,10,0" Background="#880000" />
                             <Button Name="btnApplyTweaks" Content="Apply Selected Tweaks" />
                         </StackPanel>
                     </Border>
@@ -6427,11 +6468,18 @@ $inputXML = @'
             </TabItem>
         </TabControl>
         
-        <!-- Log Output -->
-        <Border Grid.Row="1" Background="#0A0A0A" BorderBrush="#333" BorderThickness="0,1,0,0" Padding="5">
-            <TextBox Name="txtLog" Background="Transparent" Foreground="#00FF00" FontFamily="Consolas" FontSize="12" BorderThickness="0" 
-                     IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
-        </Border>
+        <!-- Bottom Status Bar -->
+        <Grid Grid.Row="1" Background="#0A0A0A">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ProgressBar Name="pbStatus" Grid.Row="0" Height="4" BorderThickness="0" Background="#111" Foreground="#0078D4" IsIndeterminate="False" Maximum="100" />
+            <Border Grid.Row="1" BorderBrush="#333" BorderThickness="0,1,0,0" Padding="5">
+                <TextBox Name="txtLog" Background="Transparent" Foreground="#00FF00" FontFamily="Consolas" FontSize="12" BorderThickness="0" 
+                         IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" />
+            </Border>
+        </Grid>
     </Grid>
 </Window>
 
@@ -6456,6 +6504,15 @@ function Show-Message {
     [System.Windows.MessageBox]::Show($Message, $Title, [System.Windows.MessageBoxButton]::OK, $Icon)
 }
 
+function DoEvents {
+    $frame = New-Object System.Windows.Threading.DispatcherFrame
+    [System.Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke(
+        [System.Windows.Threading.DispatcherPriority]::Background,
+        [System.Action] { $frame.Continue = $false }
+    ) | Out-Null
+    [System.Windows.Threading.Dispatcher]::PushFrame($frame)
+}
+
 function Write-Log {
     param([string]$Message)
     $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -6464,6 +6521,7 @@ function Write-Log {
     if ($global:LogBox) {
         $global:LogBox.AppendText("$LogText`r`n")
         $global:LogBox.ScrollToEnd()
+        DoEvents
     }
 }
 
@@ -6473,6 +6531,7 @@ $window = [Windows.Markup.XamlReader]::Load($reader)
 
 # Get UI Elements
 $global:LogBox = $window.FindName("txtLog")
+$global:pbStatus = $window.FindName("pbStatus")
 $InstallsStackPanel = $window.FindName("InstallsStackPanel")
 $TweaksStackPanel = $window.FindName("TweaksStackPanel")
 
@@ -6515,6 +6574,66 @@ if ($sync.configs.applications) {
 }
 
 # ==========================================
+# Search and Selection Events
+# ==========================================
+$txtSearchInstalls = $window.FindName("txtSearchInstalls")
+
+$txtSearchInstalls.Add_GotFocus({
+    if ($txtSearchInstalls.Text -eq "Search apps...") {
+        $txtSearchInstalls.Text = ""
+        $txtSearchInstalls.Foreground = "White"
+    }
+})
+
+$txtSearchInstalls.Add_LostFocus({
+    if ([string]::IsNullOrWhiteSpace($txtSearchInstalls.Text)) {
+        $txtSearchInstalls.Text = "Search apps..."
+        $txtSearchInstalls.Foreground = "#888"
+    }
+})
+
+$txtSearchInstalls.Add_TextChanged({
+    $query = $txtSearchInstalls.Text.ToLower()
+    foreach ($panel in $InstallsStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox]) {
+                    if ($query -eq "" -or $query -eq "search apps..." -or $chk.Content.ToString().ToLower().Contains($query)) {
+                        $chk.Visibility = 'Visible'
+                    } else {
+                        $chk.Visibility = 'Collapsed'
+                    }
+                }
+            }
+        }
+    }
+})
+
+$window.FindName("btnSelectAllInstalls").Add_Click({
+    foreach ($panel in $InstallsStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox] -and $chk.Visibility -eq 'Visible') {
+                    $chk.IsChecked = $true
+                }
+            }
+        }
+    }
+})
+
+$window.FindName("btnDeselectAllInstalls").Add_Click({
+    foreach ($panel in $InstallsStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox]) {
+                    $chk.IsChecked = $false
+                }
+            }
+        }
+    }
+})
+
+# ==========================================
 # Dynamic Tweaks Generator
 # ==========================================
 if ($sync.configs.tweaks) {
@@ -6554,6 +6673,66 @@ if ($sync.configs.tweaks) {
 }
 
 # ==========================================
+# Tweaks Search and Selection Events
+# ==========================================
+$txtSearchTweaks = $window.FindName("txtSearchTweaks")
+
+$txtSearchTweaks.Add_GotFocus({
+    if ($txtSearchTweaks.Text -eq "Search tweaks...") {
+        $txtSearchTweaks.Text = ""
+        $txtSearchTweaks.Foreground = "White"
+    }
+})
+
+$txtSearchTweaks.Add_LostFocus({
+    if ([string]::IsNullOrWhiteSpace($txtSearchTweaks.Text)) {
+        $txtSearchTweaks.Text = "Search tweaks..."
+        $txtSearchTweaks.Foreground = "#888"
+    }
+})
+
+$txtSearchTweaks.Add_TextChanged({
+    $query = $txtSearchTweaks.Text.ToLower()
+    foreach ($panel in $TweaksStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox]) {
+                    if ($query -eq "" -or $query -eq "search tweaks..." -or $chk.Content.ToString().ToLower().Contains($query) -or $chk.ToolTip.ToString().ToLower().Contains($query)) {
+                        $chk.Visibility = 'Visible'
+                    } else {
+                        $chk.Visibility = 'Collapsed'
+                    }
+                }
+            }
+        }
+    }
+})
+
+$window.FindName("btnSelectAllTweaks").Add_Click({
+    foreach ($panel in $TweaksStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox] -and $chk.Visibility -eq 'Visible') {
+                    $chk.IsChecked = $true
+                }
+            }
+        }
+    }
+})
+
+$window.FindName("btnDeselectAllTweaks").Add_Click({
+    foreach ($panel in $TweaksStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox]) {
+                    $chk.IsChecked = $false
+                }
+            }
+        }
+    }
+})
+
+# ==========================================
 # Button Event Handlers
 # ==========================================
 
@@ -6580,9 +6759,14 @@ $window.FindName("btnInstallSelected").Add_Click({
         Write-Log "No applications selected."
         return
     }
+    
+    $global:pbStatus.Maximum = $appsToInstall.Count
+    $global:pbStatus.Value = 0
 
     foreach ($appId in $appsToInstall) {
         Write-Log "Installing $appId..."
+        $global:pbStatus.Value++
+        DoEvents
         
         if ($appId -eq "Custom.IDAPro") {
             $idaDest = "C:\Program Files\IDA Pro"
@@ -6939,6 +7123,52 @@ $window.FindName("btnApplyTweaks").Add_Click({
 
     Write-Log "Tweaks applied successfully."
     Show-Message "System tweaks applied successfully." "Tweaks Complete"
+})
+
+$window.FindName("btnUndoTweaks").Add_Click({
+    Write-Log "Reverting selected system tweaks..."
+
+    foreach ($panel in $TweaksStackPanel.Children) {
+        if ($panel -is [System.Windows.Controls.WrapPanel]) {
+            foreach ($chk in $panel.Children) {
+                if ($chk -is [System.Windows.Controls.CheckBox] -and $chk.IsChecked) {
+                    $tweakId = $chk.Tag
+                    $tweak = $sync.configs.tweaks.$tweakId
+                    if (-not $tweak) { continue }
+
+                    Write-Log "Undoing Tweak: $($tweak.Content)"
+
+                    # Undo Registry
+                    if ($tweak.registry) {
+                        foreach ($reg in $tweak.registry) {
+                            try {
+                                if ($reg.OriginalValue -eq "<RemoveEntry>" -or $null -eq $reg.OriginalValue) {
+                                    Remove-ItemProperty -Path $reg.Path -Name $reg.Name -ErrorAction SilentlyContinue
+                                } else {
+                                    if (-not (Test-Path $reg.Path)) { New-Item -Path $reg.Path -Force | Out-Null }
+                                    Set-ItemProperty -Path $reg.Path -Name $reg.Name -Value $reg.OriginalValue -Force -ErrorAction SilentlyContinue
+                                }
+                            } catch { Write-Log "Failed to undo registry: $($reg.Name)" }
+                        }
+                    }
+
+                    # Execute UndoScript
+                    if ($tweak.UndoScript) {
+                        try {
+                            $scriptString = $tweak.UndoScript -join "`n"
+                            Invoke-Command -ScriptBlock ([scriptblock]::Create($scriptString)) -ErrorAction SilentlyContinue
+                        } catch { Write-Log "Failed to execute undo script for $tweakId" }
+                    }
+                }
+            }
+        }
+    }
+
+    Write-Log "Restarting Explorer to apply visual changes..."
+    Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+
+    Write-Log "Tweaks reverted successfully."
+    Show-Message "Selected tweaks have been reverted to their default states." "Undo Complete"
 })
 
 # --- Debloat ---
