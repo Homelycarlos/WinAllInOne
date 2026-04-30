@@ -2,6 +2,24 @@
 $sync.configs = @{}
 $sync.configs.applications = @'
 {
+    "cheat_engine": {
+        "category": "Reverse Engineering",
+        "choco": "na",
+        "content": "Cheat Engine",
+        "description": "An open source memory scanner/debugger/hex editor.",
+        "link": "https://cheatengine.org/",
+        "winget": "Custom.CheatEngine",
+        "foss": true
+    },
+    "x64dbg": {
+        "category": "Reverse Engineering",
+        "choco": "na",
+        "content": "x64dbg",
+        "description": "An open-source x64/x32 debugger for Windows.",
+        "link": "https://x64dbg.com/",
+        "winget": "Custom.x64dbg",
+        "foss": true
+    },
     "ghidra": {
         "category": "Reverse Engineering",
         "choco": "na",
@@ -6210,6 +6228,68 @@ $window.FindName("btnInstallSelected").Add_Click({
                 }
             } catch {
                 Write-Log "Failed to download or install Ghidra. Error: $_"
+            }
+            continue
+        }
+
+        if ($appId -eq "Custom.x64dbg") {
+            $x64dbgDest = "C:\Program Files\x64dbg"
+            Write-Log "Fetching latest x64dbg snapshot from GitHub..."
+            try {
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                $releaseInfo = Invoke-RestMethod -Uri "https://api.github.com/repos/x64dbg/x64dbg/releases/latest"
+                $downloadUrl = ($releaseInfo.assets | Where-Object { $_.name -like "snapshot_*.zip" }).browser_download_url | Select-Object -First 1
+                
+                if ($downloadUrl) {
+                    Write-Log "Downloading x64dbg from $downloadUrl..."
+                    $zipPath = "$env:TEMP\x64dbg.zip"
+                    Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
+                    
+                    Write-Log "Extracting x64dbg..."
+                    $extractPath = "$env:TEMP\x64dbg_Extract"
+                    if (Test-Path $extractPath) { Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue }
+                    Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+                    
+                    if (Test-Path "$extractPath\release") {
+                        Write-Log "Installing x64dbg to $x64dbgDest..."
+                        if (Test-Path $x64dbgDest) { Remove-Item -Path $x64dbgDest -Recurse -Force }
+                        Copy-Item -Path "$extractPath\release" -Destination $x64dbgDest -Recurse -Force
+                        
+                        Write-Log "Creating Desktop Shortcut for x64dbg..."
+                        $WshShell = New-Object -comObject WScript.Shell
+                        $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\x64dbg.lnk")
+                        $Shortcut.TargetPath = "$x64dbgDest\x64\x64dbg.exe"
+                        $Shortcut.WorkingDirectory = "$x64dbgDest\x64"
+                        $Shortcut.Save()
+                        Write-Log "Successfully installed x64dbg."
+                    } else {
+                        Write-Log "Error: Could not find extracted release directory."
+                    }
+                } else {
+                    Write-Log "Failed to find x64dbg zip URL."
+                }
+            } catch {
+                Write-Log "Failed to install x64dbg. Error: $_"
+            }
+            continue
+        }
+
+        if ($appId -eq "Custom.CheatEngine") {
+            Write-Log "Downloading Cheat Engine Installer..."
+            try {
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                $downloadUrl = "https://duwtdv56pofh5.cloudfront.net/HqWQTcY/ilfm.exe"
+                $exePath = "$env:TEMP\CheatEngineInstall.exe"
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $exePath -UseBasicParsing
+                
+                if (Test-Path $exePath) {
+                    Write-Log "Running Cheat Engine Installer Silently..."
+                    $process = Start-Process -FilePath $exePath -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait -NoNewWindow -PassThru
+                    if ($process.ExitCode -eq 0) { Write-Log "Successfully installed Cheat Engine." }
+                    else { Write-Log "Cheat Engine installer exited with code $($process.ExitCode)." }
+                }
+            } catch {
+                Write-Log "Failed to download or install Cheat Engine. Error: $_"
             }
             continue
         }
