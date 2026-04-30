@@ -349,32 +349,37 @@ $window.FindName("btnInstallSelected").Add_Click({
             continue
         }
 
-        if ($appId -match "^Custom\.Photoshop(2020|2023)$") {
-            $year = if ($appId -eq "Custom.Photoshop2020") { "2020" } else { "2023" }
-            Write-Log "Installing Photoshop $year..."
-            $zipPath = Join-Path -Path $PSScriptRoot -ChildPath ".zips\Photoshop$year.zip"
+        if ($appId -match "^Custom\.LocalZip\.(.*)$") {
+            $appName = $matches[1]
+            Write-Log "Installing $appName from local zip..."
+            $zipPath = Join-Path -Path $PSScriptRoot -ChildPath ".zips\$appName.zip"
             
             if (Test-Path $zipPath) {
                 try {
-                    $extractPath = "$env:TEMP\Photoshop$year"
+                    $extractPath = "$env:TEMP\$appName"
                     if (Test-Path $extractPath) { Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue }
-                    Write-Log "Extracting Photoshop $year zip..."
+                    Write-Log "Extracting $appName zip..."
                     Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
                     
-                    # Search for setup executable (Set-up.exe or setup.exe)
+                    # Search for setup executable
                     $setupExe = Get-ChildItem -Path $extractPath -Filter "*etup*.exe" -Recurse | Select-Object -First 1
+                    if (-not $setupExe) {
+                        # Fallback for Vegas or others
+                        $setupExe = Get-ChildItem -Path $extractPath -Filter "*.exe" -Recurse | Where-Object { $_.Name -match "(?i)(install|setup|vegas|autoplay|autorun)" } | Select-Object -First 1
+                    }
+
                     if ($setupExe) {
-                        Write-Log "Running Adobe Installer..."
+                        Write-Log "Running Installer for $appName..."
                         Start-Process -FilePath $setupExe.FullName -Wait
-                        Write-Log "Photoshop $year installation finished."
+                        Write-Log "$appName installation finished."
                     } else {
-                        Write-Log "Could not find a setup executable inside the extracted Photoshop zip."
+                        Write-Log "Could not find a setup executable inside the extracted zip for $appName."
                     }
                 } catch {
-                    Write-Log "Failed to extract or install Photoshop $year. Error: $_"
+                    Write-Log "Failed to extract or install $appName. Error: $_"
                 }
             } else {
-                Write-Log "Error: Could not find Photoshop$year.zip in the .zips folder. Please download it manually."
+                Write-Log "Error: Could not find $appName.zip in the .zips folder. Please download it manually."
             }
             continue
         }

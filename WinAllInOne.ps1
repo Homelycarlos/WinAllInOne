@@ -120,10 +120,10 @@ $sync.configs.applications = @'
         "foss": false
     },
     "wireshark": {
-        "category": "Reverse Engineering",
+        "category": "Pro Tools",
         "choco": "wireshark",
         "content": "Wireshark",
-        "description": "Wireshark is the world's foremost and widely-used network protocol analyzer.",
+        "description": "Wireshark is a widely-used open-source network protocol analyzer. It allows users to capture and analyze network traffic in real-time, providing detailed insights into network activities.",
         "link": "https://www.wireshark.org/",
         "winget": "WiresharkFoundation.Wireshark",
         "foss": true
@@ -303,18 +303,18 @@ $sync.configs.applications = @'
         "category": "Multimedia Tools",
         "choco": "na",
         "content": "Photoshop 2020 (Custom)",
-        "description": "Custom installation of Adobe Photoshop 2020. Must place 'Photoshop2020.zip' in the .zips folder.",
+        "description": "Custom installation of Adobe Photoshop 2020. Place 'Photoshop2020.zip' in the .zips folder.",
         "link": "https://adobe.com/",
-        "winget": "Custom.Photoshop2020",
+        "winget": "Custom.LocalZip.Photoshop2020",
         "foss": false
     },
     "photoshop_2023": {
         "category": "Multimedia Tools",
         "choco": "na",
         "content": "Photoshop 2023 (Custom)",
-        "description": "Custom installation of Adobe Photoshop 2023. Must place 'Photoshop2023.zip' in the .zips folder.",
+        "description": "Custom installation of Adobe Photoshop 2023. Place 'Photoshop2023.zip' in the .zips folder.",
         "link": "https://adobe.com/",
-        "winget": "Custom.Photoshop2023",
+        "winget": "Custom.LocalZip.Photoshop2023",
         "foss": false
     },
     "anydesk": {
@@ -2633,7 +2633,7 @@ $sync.configs.applications = @'
         "category": "Utilities",
         "choco": "quicklook",
         "content": "Quicklook",
-        "description": "Bring macOS â€œQuick Lookâ€ feature to Windows.",
+        "description": "Bring macOS \u201cQuick Look\u201d feature to Windows.",
         "link": "https://github.com/QL-Win/QuickLook",
         "winget": "QL-Win.QuickLook",
         "foss": true
@@ -3020,7 +3020,7 @@ $sync.configs.applications = @'
         "category": "Utilities",
         "choco": "todoist-desktop",
         "content": "Todoist",
-        "description": "Join 50+ million professionals who simplify work and life with the worldâ€™s #1 to-do list app.",
+        "description": "Join 50+ million professionals who simplify work and life with the world\u2019s #1 to-do list app.",
         "link": "https://www.todoist.com/",
         "winget": "Doist.Todoist",
         "foss": false
@@ -3439,15 +3439,6 @@ $sync.configs.applications = @'
         "winget": "WireGuard.WireGuard",
         "foss": true
     },
-    "wireshark": {
-        "category": "Pro Tools",
-        "choco": "wireshark",
-        "content": "Wireshark",
-        "description": "Wireshark is a widely-used open-source network protocol analyzer. It allows users to capture and analyze network traffic in real-time, providing detailed insights into network activities.",
-        "link": "https://www.wireshark.org/",
-        "winget": "WiresharkFoundation.Wireshark",
-        "foss": true
-    },
     "wisetoys": {
         "category": "Utilities",
         "choco": "na",
@@ -3857,7 +3848,7 @@ $sync.configs.applications = @'
         "category": "Utilities",
         "choco": "dropbox",
         "content": "Dropbox",
-        "description": "The Dropbox desktop app! Save hard drive space, share and edit files and send for signature â€“ all without the distraction of countless browser tabs.",
+        "description": "The Dropbox desktop app! Save hard drive space, share and edit files and send for signature \u2013 all without the distraction of countless browser tabs.",
         "link": "https://www.dropbox.com/en_GB/desktop",
         "winget": "Dropbox.Dropbox",
         "foss": false
@@ -3996,9 +3987,242 @@ $sync.configs.applications = @'
         "content": "Lua",
         "link": "https://github.com/rjpcomputing/luaforwindows",
         "foss": true
+    },
+    "premiere_pro_2022": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Premiere Pro 2022 (Custom)",
+        "description": "Custom installation of Adobe Premiere Pro 2022. Place 'PremierePro2022.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/9Rl0hJZA#P-oapw_q1HNPOxCvsy1SSzLTrwvpbtYtr3L1EESRkXU",
+        "winget": "Custom.LocalZip.PremierePro2022",
+        "foss": false
+    },
+    "premiere_pro_2021": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Premiere Pro 2021 (Custom)",
+        "description": "Custom installation of Adobe Premiere Pro 2021. Place 'PremierePro2021.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/oFdikLLb#oOQihJaTI5NgKgBi7B0BFjYxESwd9tVXR0qhbiDVWns",
+        "winget": "Custom.LocalZip.PremierePro2021",
+        "foss": false
+    },
+    "premiere_pro_2020": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Premiere Pro 2020 (Custom)",
+        "description": "Custom installation of Adobe Premiere Pro 2020. Place 'PremierePro2020.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/QM9yHaSL#WuGpwty--AAryk5JtgiDRSuosm5mI-KpBaYdFMDrx14",
+        "winget": "Custom.LocalZip.PremierePro2020",
+        "foss": false
+    },
+    "premiere_pro_2019": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Premiere Pro 2019 (Custom)",
+        "description": "Custom installation of Adobe Premiere Pro 2019. Place 'PremierePro2019.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/MN1XFLKZ#w-PUONBW38kKPmXY-vcMkBuw0xgzIr-_OI2U6B-ixtw",
+        "winget": "Custom.LocalZip.PremierePro2019",
+        "foss": false
+    },
+    "premiere_pro_2018": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Premiere Pro 2018 (Custom)",
+        "description": "Custom installation of Adobe Premiere Pro 2018. Place 'PremierePro2018.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/0EkEQLAZ#UFFX6WSIC5qxydnA8L2UDfXA0013gaqF6xzvKRC5rbU",
+        "winget": "Custom.LocalZip.PremierePro2018",
+        "foss": false
+    },
+    "media_encoder_2022": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Media Encoder 2022 (Custom)",
+        "description": "Custom installation of Adobe Media Encoder 2022. Place 'MediaEncoder2022.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/OxkVRJgL#BRoRgLTfTHmzaWMPHw4XogNAb15CkeFpS0C6haUQATw",
+        "winget": "Custom.LocalZip.MediaEncoder2022",
+        "foss": false
+    },
+    "media_encoder_2021": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Media Encoder 2021 (Custom)",
+        "description": "Custom installation of Adobe Media Encoder 2021. Place 'MediaEncoder2021.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/a8ERyARK#5ZumWd_Z2MWZx8fmchJ9mTYjkifnd6L3M7ZHQ3_ZkGQ",
+        "winget": "Custom.LocalZip.MediaEncoder2021",
+        "foss": false
+    },
+    "media_encoder_2020": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Media Encoder 2020 (Custom)",
+        "description": "Custom installation of Adobe Media Encoder 2020. Place 'MediaEncoder2020.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/nls2ST4I#ill8_JqOmwWcilwn0hoifWmMOCq9gouet-9Tf1ndGMo",
+        "winget": "Custom.LocalZip.MediaEncoder2020",
+        "foss": false
+    },
+    "media_encoder_2019": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Media Encoder 2019 (Custom)",
+        "description": "Custom installation of Adobe Media Encoder 2019. Place 'MediaEncoder2019.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/Hllj2CbY#pHD0UWfzjDOQBhRXSzwKMOdjHz02lV9cO_sXpBelmvo",
+        "winget": "Custom.LocalZip.MediaEncoder2019",
+        "foss": false
+    },
+    "media_encoder_2018": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Media Encoder 2018 (Custom)",
+        "description": "Custom installation of Adobe Media Encoder 2018. Place 'MediaEncoder2018.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/etEiEYrS#vPMMrWRH2q7xjiP8bDNLEjX7MzprscNAKGKojVzAGtA",
+        "winget": "Custom.LocalZip.MediaEncoder2018",
+        "foss": false
+    },
+    "vegas_pro_19": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 19 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 19. Place 'VegasPro19.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/z4EWSCxS#EKSvi4h5RiLDVSLNeO50FGrcpYj3JoCUn2s5kBoFGdQ",
+        "winget": "Custom.LocalZip.VegasPro19",
+        "foss": false
+    },
+    "vegas_pro_18": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 18 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 18. Place 'VegasPro18.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/rxtGAAiQ#LcER6lQkyS8PYozQ-LzO5VYUMG9MkFtvMHqfyRUUz6k",
+        "winget": "Custom.LocalZip.VegasPro18",
+        "foss": false
+    },
+    "vegas_pro_17": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 17 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 17. Place 'VegasPro17.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/Hxcx2A5Z#cdUR-WgOvArdKcGYYZUYMY4dOOx8CXdmxFYANDYq8kY",
+        "winget": "Custom.LocalZip.VegasPro17",
+        "foss": false
+    },
+    "vegas_pro_16": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 16 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 16. Place 'VegasPro16.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/2ktSySga#DvDz8VHT3S7OgoMCJqJcXy4-8F0GuPFdBAYYBURd-8Y",
+        "winget": "Custom.LocalZip.VegasPro16",
+        "foss": false
+    },
+    "vegas_pro_15": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 15 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 15. Place 'VegasPro15.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/n00AXIhC#qhsq4S7ffOACuv57niX5FJh7_wEgeLBIxVdpWjGb9Jk",
+        "winget": "Custom.LocalZip.VegasPro15",
+        "foss": false
+    },
+    "vegas_pro_14": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 14 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 14. Place 'VegasPro14.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/G8lBGRxA#JM3u0rTVTOjicFj7ydyX_XB8IiASmxn32YhQEYhdYG0",
+        "winget": "Custom.LocalZip.VegasPro14",
+        "foss": false
+    },
+    "vegas_pro_13": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Sony Vegas Pro 13 (Custom)",
+        "description": "Custom installation of Sony Vegas Pro 13. Place 'VegasPro13.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/6sERFKAK#7gNtTighb-JEs9_MCYHN96Mlo6WG-1_SajHrIq8dq4U",
+        "winget": "Custom.LocalZip.VegasPro13",
+        "foss": false
+    },
+    "after_effects_2022": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe After Effects 2022 (Custom)",
+        "description": "Custom installation of Adobe After Effects 2022. Place 'AfterEffects2022.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/AclDCDaY#-WKUDJJPZ3Btsl6yBkqwvhKCcslu8FfaAJduORfu9U0",
+        "winget": "Custom.LocalZip.AfterEffects2022",
+        "foss": false
+    },
+    "after_effects_2021": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe After Effects 2021 (Custom)",
+        "description": "Custom installation of Adobe After Effects 2021. Place 'AfterEffects2021.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/EM9gHbhR#Qmr6_bNzeNtTjABdFX0yG3A7mY4f-Q0-InY-9Xp1b-Y",
+        "winget": "Custom.LocalZip.AfterEffects2021",
+        "foss": false
+    },
+    "after_effects_2020": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe After Effects 2020 (Custom)",
+        "description": "Custom installation of Adobe After Effects 2020. Place 'AfterEffects2020.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/0E0yGKBI#YUEoCmSPAR-RSB3X8KEaar8Tq7XvMe_btCdGLc6t02U",
+        "winget": "Custom.LocalZip.AfterEffects2020",
+        "foss": false
+    },
+    "after_effects_2019": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe After Effects 2019 (Custom)",
+        "description": "Custom installation of Adobe After Effects 2019. Place 'AfterEffects2019.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/lJdk0DrJ#QHrP4s3hHFdZx-R2tgrcGxMUKeyhjMvHBFTSf1GxBl8",
+        "winget": "Custom.LocalZip.AfterEffects2019",
+        "foss": false
+    },
+    "after_effects_2018": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe After Effects 2018 (Custom)",
+        "description": "Custom installation of Adobe After Effects 2018. Place 'AfterEffects2018.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/BUED3YZY#qYTu4ie6CXUQO6E5GZzWqOGTE9Korp5vtwBe0mDXL0U",
+        "winget": "Custom.LocalZip.AfterEffects2018",
+        "foss": false
+    },
+    "photoshop_2022": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Photoshop 2022 (Custom)",
+        "description": "Custom installation of Adobe Photoshop 2022. Place 'Photoshop2022.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/vp0wUJLb#guPkQhKV3iUeVzt-EPmqkN9uzl_cApIAV0fVySYbm1g",
+        "winget": "Custom.LocalZip.Photoshop2022",
+        "foss": false
+    },
+    "photoshop_2021": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Photoshop 2021 (Custom)",
+        "description": "Custom installation of Adobe Photoshop 2021. Place 'Photoshop2021.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/vo10hSqS#ufDrPHwQxb_s9LWxQMbbW5vb9EQvBHGpt8mMctNNPsw",
+        "winget": "Custom.LocalZip.Photoshop2021",
+        "foss": false
+    },
+    "photoshop_2019": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Photoshop 2019 (Custom)",
+        "description": "Custom installation of Adobe Photoshop 2019. Place 'Photoshop2019.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/n8lHFJDT#4QRKlkaS10yaQBVYbViSd4E3706GwRprT7CGQ6Y6LIk",
+        "winget": "Custom.LocalZip.Photoshop2019",
+        "foss": false
+    },
+    "photoshop_2018": {
+        "category": "Multimedia Tools",
+        "choco": "na",
+        "content": "Adobe Photoshop 2018 (Custom)",
+        "description": "Custom installation of Adobe Photoshop 2018. Place 'Photoshop2018.zip' in the .zips folder.",
+        "link": "https://mega.nz/file/Phs0mTaD#qmz_sot-B11Pjwo8i4wpUw7HHY6XOaFJaVzS8XPBfGU",
+        "winget": "Custom.LocalZip.Photoshop2018",
+        "foss": false
     }
 }
-
 '@ | ConvertFrom-Json
 $sync.configs.tweaks = @'
 {
@@ -6465,32 +6689,37 @@ $window.FindName("btnInstallSelected").Add_Click({
             continue
         }
 
-        if ($appId -match "^Custom\.Photoshop(2020|2023)$") {
-            $year = if ($appId -eq "Custom.Photoshop2020") { "2020" } else { "2023" }
-            Write-Log "Installing Photoshop $year..."
-            $zipPath = Join-Path -Path $PSScriptRoot -ChildPath ".zips\Photoshop$year.zip"
+        if ($appId -match "^Custom\.LocalZip\.(.*)$") {
+            $appName = $matches[1]
+            Write-Log "Installing $appName from local zip..."
+            $zipPath = Join-Path -Path $PSScriptRoot -ChildPath ".zips\$appName.zip"
             
             if (Test-Path $zipPath) {
                 try {
-                    $extractPath = "$env:TEMP\Photoshop$year"
+                    $extractPath = "$env:TEMP\$appName"
                     if (Test-Path $extractPath) { Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue }
-                    Write-Log "Extracting Photoshop $year zip..."
+                    Write-Log "Extracting $appName zip..."
                     Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
                     
-                    # Search for setup executable (Set-up.exe or setup.exe)
+                    # Search for setup executable
                     $setupExe = Get-ChildItem -Path $extractPath -Filter "*etup*.exe" -Recurse | Select-Object -First 1
+                    if (-not $setupExe) {
+                        # Fallback for Vegas or others
+                        $setupExe = Get-ChildItem -Path $extractPath -Filter "*.exe" -Recurse | Where-Object { $_.Name -match "(?i)(install|setup|vegas|autoplay|autorun)" } | Select-Object -First 1
+                    }
+
                     if ($setupExe) {
-                        Write-Log "Running Adobe Installer..."
+                        Write-Log "Running Installer for $appName..."
                         Start-Process -FilePath $setupExe.FullName -Wait
-                        Write-Log "Photoshop $year installation finished."
+                        Write-Log "$appName installation finished."
                     } else {
-                        Write-Log "Could not find a setup executable inside the extracted Photoshop zip."
+                        Write-Log "Could not find a setup executable inside the extracted zip for $appName."
                     }
                 } catch {
-                    Write-Log "Failed to extract or install Photoshop $year. Error: $_"
+                    Write-Log "Failed to extract or install $appName. Error: $_"
                 }
             } else {
-                Write-Log "Error: Could not find Photoshop$year.zip in the .zips folder. Please download it manually."
+                Write-Log "Error: Could not find $appName.zip in the .zips folder. Please download it manually."
             }
             continue
         }
