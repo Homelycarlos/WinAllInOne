@@ -6334,7 +6334,7 @@ $inputXML = @'
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Name="txtSearchTweaks" Grid.Column="0" Margin="0,0,10,0" Padding="5" Background="#222" Foreground="White" BorderBrush="#555" BorderThickness="1" Text="Search tweaks..." Foreground="#888" />
+                            <TextBox Name="txtSearchTweaks" Grid.Column="0" Margin="0,0,10,0" Padding="5" Background="#222" Foreground="#888" BorderBrush="#555" BorderThickness="1" Text="Search tweaks..." />
                             <StackPanel Grid.Column="1" Orientation="Horizontal">
                                 <Button Name="btnSelectAllTweaks" Content="Select All" Padding="10,5" Margin="0,0,5,0" Background="#333" />
                                 <Button Name="btnDeselectAllTweaks" Content="Clear" Padding="10,5" Background="#333" />
