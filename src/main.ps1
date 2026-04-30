@@ -565,6 +565,32 @@ $window.FindName("btnConfigFeatures").Add_Click({ Start-Process "optionalfeature
 $window.FindName("btnConfigPower").Add_Click({ Start-Process "powercfg.cpl" })
 $window.FindName("btnConfigPrograms").Add_Click({ Start-Process "appwiz.cpl" })
 
+$window.FindName("btnActivateWindows").Add_Click({
+    Write-Log "Initializing Windows Activation (MAS KMS38)..."
+    
+    if ($sync.scripts.ContainsKey("Activator.cmd")) {
+        try {
+            $tempPath = Join-Path $env:TEMP "Activator.cmd"
+            $base64 = $sync.scripts["Activator.cmd"]
+            $bytes = [System.Convert]::FromBase64String($base64)
+            [System.IO.File]::WriteAllBytes($tempPath, $bytes)
+            
+            Write-Log "Executing Activation Script (KMS38 Mode)..."
+            # /KMS38 activates Windows until 2038
+            Start-Process -FilePath $tempPath -ArgumentList "/KMS38" -Wait -Verb RunAs
+            
+            Write-Log "Activation process finished."
+            Show-Message "Activation script execution finished. Check the console window for results." "Activation Complete"
+        } catch {
+            Write-Log "Error during activation: $_"
+            Show-Message "Failed to run activation script: $_" "Error" ([System.Windows.MessageBoxImage]::Error)
+        }
+    } else {
+        Write-Log "Error: Activation script not found in embedded resources."
+        Show-Message "Activation script missing from bundle." "Error" ([System.Windows.MessageBoxImage]::Error)
+    }
+})
+
 # --- Updates ---
 $window.FindName("btnApplyUpdates").Add_Click({
     Write-Log "Applying Windows Update settings..."

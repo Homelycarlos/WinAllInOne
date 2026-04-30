@@ -25,6 +25,21 @@ $json
     Write-Host "Injected config: $baseName.json" -ForegroundColor Green
 }
 
+# 2.5 Inject Scripts (Base64)
+$script_content.Add("`$sync.scripts = @{}")
+$scriptsDir = Join-Path $workingDir "src\scripts"
+if (Test-Path $scriptsDir) {
+    Get-ChildItem $scriptsDir -File | ForEach-Object {
+        $bytes = [System.IO.File]::ReadAllBytes($_.FullName)
+        $base64 = [System.Convert]::ToBase64String($bytes)
+        $name = $_.Name
+        $script_content.Add(@"
+`$sync.scripts['$name'] = '$base64'
+"@)
+        Write-Host "Injected script: $name (Base64)" -ForegroundColor Green
+    }
+}
+
 # 3. Inject XAML
 $xaml = Get-Content (Join-Path $workingDir "src\UI.xaml") -Raw
 $script_content.Add(@"
