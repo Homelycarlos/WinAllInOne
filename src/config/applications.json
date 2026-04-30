@@ -1,4 +1,13 @@
 {
+    "ghidra": {
+        "category": "Reverse Engineering",
+        "choco": "na",
+        "content": "Ghidra",
+        "description": "A software reverse engineering (SRE) suite of tools developed by NSA's Research Directorate. Automatically downloads latest release.",
+        "link": "https://ghidra-sre.org/",
+        "winget": "Custom.Ghidra",
+        "foss": true
+    },
     "ida_pro_9": {
         "category": "Reverse Engineering",
         "choco": "na",

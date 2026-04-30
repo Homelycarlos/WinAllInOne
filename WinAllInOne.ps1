@@ -2,6 +2,15 @@
 $sync.configs = @{}
 $sync.configs.applications = @'
 {
+    "ghidra": {
+        "category": "Reverse Engineering",
+        "choco": "na",
+        "content": "Ghidra",
+        "description": "A software reverse engineering (SRE) suite of tools developed by NSA's Research Directorate. Automatically downloads latest release.",
+        "link": "https://ghidra-sre.org/",
+        "winget": "Custom.Ghidra",
+        "foss": true
+    },
     "ida_pro_9": {
         "category": "Reverse Engineering",
         "choco": "na",
@@ -6154,6 +6163,53 @@ $window.FindName("btnInstallSelected").Add_Click({
                 }
             } catch {
                 Write-Log "Failed to extract or install IDA Pro 9.0."
+            }
+            continue
+        }
+
+        if ($appId -eq "Custom.Ghidra") {
+            $ghidraDest = "C:\Program Files\Ghidra"
+            Write-Log "Fetching latest Ghidra release from GitHub..."
+            try {
+                [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                $releaseInfo = Invoke-RestMethod -Uri "https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest"
+                $downloadUrl = ($releaseInfo.assets | Where-Object { $_.name -like "*.zip" }).browser_download_url | Select-Object -First 1
+                
+                if ($downloadUrl) {
+                    Write-Log "Downloading Ghidra from $downloadUrl..."
+                    $zipPath = "$env:TEMP\ghidra.zip"
+                    Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
+                    
+                    Write-Log "Extracting Ghidra..."
+                    $extractPath = "$env:TEMP\Ghidra_Extract"
+                    if (Test-Path $extractPath) { Remove-Item -Path $extractPath -Recurse -Force -ErrorAction SilentlyContinue }
+                    Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+                    
+                    $ghidraDir = Get-ChildItem -Path $extractPath -Directory | Where-Object { $_.Name -like "ghidra_*" } | Select-Object -First 1
+                    
+                    if ($ghidraDir) {
+                        Write-Log "Installing Ghidra to $ghidraDest..."
+                        if (Test-Path $ghidraDest) { Remove-Item -Path $ghidraDest -Recurse -Force }
+                        Copy-Item -Path $ghidraDir.FullName -Destination $ghidraDest -Recurse -Force
+                        
+                        Write-Log "Creating Desktop Shortcut for Ghidra..."
+                        $WshShell = New-Object -comObject WScript.Shell
+                        $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\Ghidra.lnk")
+                        $Shortcut.TargetPath = "$ghidraDest\ghidraRun.bat"
+                        
+                        $iconPath = "$ghidraDest\support\ghidra.ico"
+                        if (Test-Path $iconPath) { $Shortcut.IconLocation = $iconPath }
+                        
+                        $Shortcut.Save()
+                        Write-Log "Successfully installed Ghidra."
+                    } else {
+                        Write-Log "Error: Could not find extracted Ghidra directory."
+                    }
+                } else {
+                    Write-Log "Failed to find Ghidra zip URL in latest release."
+                }
+            } catch {
+                Write-Log "Failed to download or install Ghidra. Error: $_"
             }
             continue
         }
