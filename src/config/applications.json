@@ -1,4 +1,49 @@
 {
+    "hxd": {
+        "category": "Reverse Engineering",
+        "choco": "hxd",
+        "content": "HxD Hex Editor",
+        "description": "HxD is a carefully designed and fast hex editor which handles files of any size.",
+        "link": "https://mh-nexus.de/en/hxd/",
+        "winget": "MaelHorz.HxD",
+        "foss": false
+    },
+    "wireshark": {
+        "category": "Reverse Engineering",
+        "choco": "wireshark",
+        "content": "Wireshark",
+        "description": "Wireshark is the world's foremost and widely-used network protocol analyzer.",
+        "link": "https://www.wireshark.org/",
+        "winget": "WiresharkFoundation.Wireshark",
+        "foss": true
+    },
+    "sysinternals": {
+        "category": "Reverse Engineering",
+        "choco": "sysinternals",
+        "content": "Sysinternals Suite",
+        "description": "The Sysinternals Troubleshooting Utilities rolled up into a single suite.",
+        "link": "https://docs.microsoft.com/en-us/sysinternals/",
+        "winget": "Microsoft.Sysinternals",
+        "foss": false
+    },
+    "resource_hacker": {
+        "category": "Reverse Engineering",
+        "choco": "resourcehacker",
+        "content": "Resource Hacker",
+        "description": "Resource Hacker is a resource editor for 32bit and 64bit Windows applications.",
+        "link": "http://www.angusj.com/resourcehacker/",
+        "winget": "AngusJohnson.ResourceHacker",
+        "foss": false
+    },
+    "dotpeek": {
+        "category": "Reverse Engineering",
+        "choco": "dotpeek",
+        "content": "dotPeek",
+        "description": "dotPeek is a free-of-charge .NET decompiler and assembly browser.",
+        "link": "https://www.jetbrains.com/decompiler/",
+        "winget": "JetBrains.dotPeek",
+        "foss": false
+    },
     "cheat_engine": {
         "category": "Reverse Engineering",
         "choco": "na",
