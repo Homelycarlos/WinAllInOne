@@ -379,6 +379,37 @@ $window.FindName("btnInstallSelected").Add_Click({
             continue
         }
 
+        if ($appId -match "^Custom\.WebLink\.(.*)$") {
+            $siteName = $matches[1]
+            $url = ""
+            switch ($siteName) {
+                "VirusTotal" { $url = "https://www.virustotal.com/" }
+                "HybridAnalysis" { $url = "https://hybrid-analysis.com/" }
+                "Manalyzer" { $url = "https://manalyzer.org/" }
+                "Uncoverit" { $url = "https://uncoverit.org/" }
+                "ExposingRip" { $url = "https://exposing.rip/" }
+                "IsThisARat" { $url = "https://isthisarat.com/" }
+                "Triage" { $url = "https://tria.ge/" }
+                "AnyRun" { $url = "https://app.any.run/" }
+                "ThreatRip" { $url = "https://www.threat.rip/" }
+                "Browserling" { $url = "https://www.browserling.com/" }
+            }
+            if ($url -ne "") {
+                Write-Log "Creating Desktop Shortcut for $siteName..."
+                $WshShell = New-Object -ComObject WScript.Shell
+                $desktop = [Environment]::GetFolderPath('Desktop')
+                $shortcutDir = Join-Path $desktop "Web Security Tools"
+                if (-not (Test-Path $shortcutDir)) { New-Item -ItemType Directory -Path $shortcutDir | Out-Null }
+                
+                $shortcutPath = Join-Path $shortcutDir "$siteName.url"
+                $shortcut = $WshShell.CreateShortcut($shortcutPath)
+                $shortcut.TargetPath = $url
+                $shortcut.Save()
+                Write-Log "Shortcut created at $shortcutPath"
+            }
+            continue
+        }
+
         if ($appId -match "^Custom\.VS(2022|2026)Community$") {
             Write-Log "Downloading $($appId) Bootstrapper..."
             try {

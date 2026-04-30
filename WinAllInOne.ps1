@@ -20,6 +20,96 @@ $sync.configs.applications = @'
         "winget": "Custom.VS2022Community",
         "foss": false
     },
+    "virustotal": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "VirusTotal",
+        "description": "Analyze suspicious files, domains, IPs and URLs to detect malware.",
+        "link": "https://www.virustotal.com/",
+        "winget": "Custom.WebLink.VirusTotal",
+        "foss": true
+    },
+    "hybrid_analysis": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Hybrid Analysis",
+        "description": "Free malware analysis service for the community that detects and analyzes unknown threats.",
+        "link": "https://hybrid-analysis.com/",
+        "winget": "Custom.WebLink.HybridAnalysis",
+        "foss": true
+    },
+    "manalyzer": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Manalyzer",
+        "description": "Static analyzer for PE executables.",
+        "link": "https://manalyzer.org/",
+        "winget": "Custom.WebLink.Manalyzer",
+        "foss": true
+    },
+    "uncoverit": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Uncoverit",
+        "description": "Malware scanner and analyzer.",
+        "link": "https://uncoverit.org/",
+        "winget": "Custom.WebLink.Uncoverit",
+        "foss": true
+    },
+    "exposing_rip": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Exposing.rip",
+        "description": "Detector for known malware.",
+        "link": "https://exposing.rip/",
+        "winget": "Custom.WebLink.ExposingRip",
+        "foss": true
+    },
+    "isthisarat": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "IsThisARat",
+        "description": "Analyzer specifically for Minecraft .jar files.",
+        "link": "https://isthisarat.com/",
+        "winget": "Custom.WebLink.IsThisARat",
+        "foss": true
+    },
+    "triage": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Triage",
+        "description": "High-volume malware analysis sandbox.",
+        "link": "https://tria.ge/",
+        "winget": "Custom.WebLink.Triage",
+        "foss": true
+    },
+    "anyrun": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Any.Run",
+        "description": "Interactive malware hunting service.",
+        "link": "https://app.any.run/",
+        "winget": "Custom.WebLink.AnyRun",
+        "foss": true
+    },
+    "threatrip": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Threat.rip",
+        "description": "Web-based sandbox and virtual machine.",
+        "link": "https://www.threat.rip/",
+        "winget": "Custom.WebLink.ThreatRip",
+        "foss": true
+    },
+    "browserling": {
+        "category": "Web Security Tools",
+        "choco": "na",
+        "content": "Browserling",
+        "description": "Live interactive cross-browser testing for URLs and links.",
+        "link": "https://www.browserling.com/",
+        "winget": "Custom.WebLink.Browserling",
+        "foss": true
+    },
     "hxd": {
         "category": "Reverse Engineering",
         "choco": "hxd",
@@ -6401,6 +6491,37 @@ $window.FindName("btnInstallSelected").Add_Click({
                 }
             } else {
                 Write-Log "Error: Could not find Photoshop$year.zip in the .zips folder. Please download it manually."
+            }
+            continue
+        }
+
+        if ($appId -match "^Custom\.WebLink\.(.*)$") {
+            $siteName = $matches[1]
+            $url = ""
+            switch ($siteName) {
+                "VirusTotal" { $url = "https://www.virustotal.com/" }
+                "HybridAnalysis" { $url = "https://hybrid-analysis.com/" }
+                "Manalyzer" { $url = "https://manalyzer.org/" }
+                "Uncoverit" { $url = "https://uncoverit.org/" }
+                "ExposingRip" { $url = "https://exposing.rip/" }
+                "IsThisARat" { $url = "https://isthisarat.com/" }
+                "Triage" { $url = "https://tria.ge/" }
+                "AnyRun" { $url = "https://app.any.run/" }
+                "ThreatRip" { $url = "https://www.threat.rip/" }
+                "Browserling" { $url = "https://www.browserling.com/" }
+            }
+            if ($url -ne "") {
+                Write-Log "Creating Desktop Shortcut for $siteName..."
+                $WshShell = New-Object -ComObject WScript.Shell
+                $desktop = [Environment]::GetFolderPath('Desktop')
+                $shortcutDir = Join-Path $desktop "Web Security Tools"
+                if (-not (Test-Path $shortcutDir)) { New-Item -ItemType Directory -Path $shortcutDir | Out-Null }
+                
+                $shortcutPath = Join-Path $shortcutDir "$siteName.url"
+                $shortcut = $WshShell.CreateShortcut($shortcutPath)
+                $shortcut.TargetPath = $url
+                $shortcut.Save()
+                Write-Log "Shortcut created at $shortcutPath"
             }
             continue
         }
