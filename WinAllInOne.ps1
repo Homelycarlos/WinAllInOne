@@ -6598,7 +6598,7 @@ $txtSearchInstalls.Add_TextChanged({
         if ($panel -is [System.Windows.Controls.WrapPanel]) {
             foreach ($chk in $panel.Children) {
                 if ($chk -is [System.Windows.Controls.CheckBox]) {
-                    if ($query -eq "" -or $query -eq "search apps..." -or $chk.Content.ToString().ToLower().Contains($query)) {
+                    if ($query -eq "" -or $query -eq "search apps..." -or ($chk.Content -and $chk.Content.ToString().ToLower().Contains($query))) {
                         $chk.Visibility = 'Visible'
                     } else {
                         $chk.Visibility = 'Collapsed'
@@ -6697,7 +6697,7 @@ $txtSearchTweaks.Add_TextChanged({
         if ($panel -is [System.Windows.Controls.WrapPanel]) {
             foreach ($chk in $panel.Children) {
                 if ($chk -is [System.Windows.Controls.CheckBox]) {
-                    if ($query -eq "" -or $query -eq "search tweaks..." -or $chk.Content.ToString().ToLower().Contains($query) -or $chk.ToolTip.ToString().ToLower().Contains($query)) {
+                    if ($query -eq "" -or $query -eq "search tweaks..." -or ($chk.Content -and $chk.Content.ToString().ToLower().Contains($query)) -or ($chk.ToolTip -and $chk.ToolTip.ToString().ToLower().Contains($query))) {
                         $chk.Visibility = 'Visible'
                     } else {
                         $chk.Visibility = 'Collapsed'
