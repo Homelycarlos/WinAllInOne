@@ -263,7 +263,7 @@
                         <TextBlock Text="Windows Activation" Style="{StaticResource HeaderStyle}" Margin="0,30,0,10" />
                         <TextBlock Text="Permanently activate Windows or extend license using MAS (KMS38)." Foreground="#888" Margin="0,0,0,20"/>
                         <WrapPanel HorizontalAlignment="Center">
-                            <Button Name="btnActivateWindows" Content="Activate Windows (10+ Years)" Style="{StaticResource ConfigTile}" Background="#004D40" />
+                            <Button Name="btnActivateWindows" Content="Activate Windows (Permanent)" Style="{StaticResource ConfigTile}" Background="#004D40" />
                         </WrapPanel>
                     </StackPanel>
                 </Grid>

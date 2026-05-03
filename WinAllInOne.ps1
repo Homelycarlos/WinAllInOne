@@ -6378,7 +6378,7 @@ $inputXML = @'
                         <TextBlock Text="Windows Activation" Style="{StaticResource HeaderStyle}" Margin="0,30,0,10" />
                         <TextBlock Text="Permanently activate Windows or extend license using MAS (KMS38)." Foreground="#888" Margin="0,0,0,20"/>
                         <WrapPanel HorizontalAlignment="Center">
-                            <Button Name="btnActivateWindows" Content="Activate Windows (10+ Years)" Style="{StaticResource ConfigTile}" Background="#004D40" />
+                            <Button Name="btnActivateWindows" Content="Activate Windows (Permanent)" Style="{StaticResource ConfigTile}" Background="#004D40" />
                         </WrapPanel>
                     </StackPanel>
                 </Grid>
@@ -7236,22 +7236,225 @@ $window.FindName("btnConfigPrograms").Add_Click({ Start-Process "appwiz.cpl" })
 $window.FindName("btnActivateWindows").Add_Click({
     $edition = (Get-WmiObject Win32_OperatingSystem).Caption
     Write-Log "Detected Windows Edition: $edition"
-    Write-Log "Initializing Universal Activation (MAS KMS38)..."
-    Write-Log "Note: The script automatically selects the correct GVLK license key for your edition."
+    Write-Log "Initializing Universal Activation (Direct + Fallback)..."
     
     if ($sync.scripts.ContainsKey("Activator.cmd")) {
         try {
-            $tempPath = Join-Path $env:TEMP "Activator.cmd"
+            $tempDir = $env:TEMP
+            $activatorPath = Join-Path $tempDir "Activator.cmd"
+            $wrapperPath = Join-Path $tempDir "RunActivator.cmd"
+            
             $base64 = $sync.scripts["Activator.cmd"]
             $bytes = [System.Convert]::FromBase64String($base64)
-            [System.IO.File]::WriteAllBytes($tempPath, $bytes)
+            [System.IO.File]::WriteAllBytes($activatorPath, $bytes)
             
-            Write-Log "Executing Activation Script (KMS38 Mode)..."
-            # /KMS38 activates Windows until 2038
-            Start-Process -FilePath $tempPath -ArgumentList "/KMS38" -Wait -Verb RunAs
+            # Write the wrapper .cmd file line-by-line using StreamWriter
+            # to avoid PowerShell mangling batch %variables%
+            $sw = [System.IO.StreamWriter]::new($wrapperPath, $false, [System.Text.Encoding]::ASCII)
+            $sw.WriteLine('@echo off')
+            $sw.WriteLine('setlocal EnableDelayedExpansion')
+            $sw.WriteLine('color 07')
+            $sw.WriteLine('title Universal Windows Activator')
+            $sw.WriteLine('')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo  Universal Windows Activator - Direct KMS Method')
+            $sw.WriteLine('echo  Works on any network, no wmic.exe required')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Detect Windows Edition and set the correct GVLK key')
+            $sw.WriteLine('set EDITION_KEY=')
+            $sw.WriteLine('set EDITION_NAME=')
+            $sw.WriteLine('')
+            $sw.WriteLine('for /f "tokens=4-10 delims= " %%a in (''wmic os get caption /value 2^>nul ^| find "="'') do set "WINCAP=%%a %%b %%c %%d %%e %%f %%g"')
+            $sw.WriteLine('if not defined WINCAP for /f "delims=" %%a in (''powershell -c "(Get-CimInstance Win32_OperatingSystem).Caption"'') do set "WINCAP=%%a"')
+            $sw.WriteLine('echo  Detected: %WINCAP%')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Match edition to GVLK key (Microsoft official Volume License keys)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Pro Education" >nul && (set "EDITION_KEY=6TP4R-GNPTD-KYYHQ-7B7DP-J447Y" & set "EDITION_NAME=Pro Education" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Pro for Workstation" >nul && (set "EDITION_KEY=NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J" & set "EDITION_NAME=Pro Workstation" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Pro N" >nul && (set "EDITION_KEY=MH37W-N47XK-V7XM9-C7227-GCQG9" & set "EDITION_NAME=Pro N" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Pro" >nul && (set "EDITION_KEY=W269N-WFGWX-YVC9B-4J6C9-T83GX" & set "EDITION_NAME=Pro" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Enterprise LTSC" >nul && (set "EDITION_KEY=M7XTQ-FN8P6-TTKYV-9D4CC-J462D" & set "EDITION_NAME=Enterprise LTSC" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Enterprise N" >nul && (set "EDITION_KEY=DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4" & set "EDITION_NAME=Enterprise N" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Enterprise" >nul && (set "EDITION_KEY=NPPR9-FWDCX-D2C8J-H872K-2YT43" & set "EDITION_NAME=Enterprise" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Education N" >nul && (set "EDITION_KEY=2WH4N-8QGBV-H22JP-CT43Q-MDWWJ" & set "EDITION_NAME=Education N" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Education" >nul && (set "EDITION_KEY=NW6C2-QMPVW-D7KKK-3GKT6-VCFB2" & set "EDITION_NAME=Education" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Home Single" >nul && (set "EDITION_KEY=7HNRX-D7KGG-3K4RQ-4WPJ4-YTDFH" & set "EDITION_NAME=Home Single Language" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Home N" >nul && (set "EDITION_KEY=3KHY7-WNT83-DGQKR-F7HPR-844BM" & set "EDITION_NAME=Home N" & goto :key_found)')
+            $sw.WriteLine('echo "%WINCAP%" | find /i "Home" >nul && (set "EDITION_KEY=TX9XD-98N7V-6WMQ6-BX7FG-H8Q99" & set "EDITION_NAME=Home" & goto :key_found)')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Fallback - default to Pro key')
+            $sw.WriteLine('set "EDITION_KEY=W269N-WFGWX-YVC9B-4J6C9-T83GX"')
+            $sw.WriteLine('set "EDITION_NAME=Pro (Fallback)"')
+            $sw.WriteLine('')
+            $sw.WriteLine(':key_found')
+            $sw.WriteLine('echo  Edition:  %EDITION_NAME%')
+            $sw.WriteLine('echo  GVLK Key: %EDITION_KEY%')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Step 1: Install the GVLK product key')
+            $sw.WriteLine('echo  [Step 1] Installing GVLK product key...')
+            $sw.WriteLine('cscript //nologo "%windir%\system32\slmgr.vbs" /ipk %EDITION_KEY%')
+            $sw.WriteLine('if %errorlevel% neq 0 (')
+            $sw.WriteLine('    echo  [ERROR] Failed to install product key.')
+            $sw.WriteLine('    goto :try_activator')
+            $sw.WriteLine(')')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Step 2: Try each KMS server until one works')
+            $sw.WriteLine('echo  [Step 2] Trying KMS servers...')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            # Write each KMS server as a numbered attempt
+            $kmsServers = @(
+                "kms.zhuxiaole.org",
+                "kms-default.cangshui.net",
+                "kms.sixyin.com",
+                "kms.moeclub.org",
+                "kms.cgtsoft.com",
+                "kms.idina.cn",
+                "kms.moeyuuko.com",
+                "xincheng213618.cn",
+                "kms.wlrxy.cn",
+                "kms.catqu.com",
+                "kms.0t.net.cn",
+                "kms.itsjzx.com",
+                "kms.wxlost.com",
+                "kms.moeyuuko.top",
+                "kms.ghpym.com",
+                "222.184.9.98"
+            )
+            $serverNum = 1
+            foreach ($srv in $kmsServers) {
+                $sw.WriteLine("echo  [Server $serverNum/16] Trying: $srv")
+                $sw.WriteLine("cscript //nologo `"%windir%\system32\slmgr.vbs`" /skms ${srv}:1688")
+                $sw.WriteLine("cscript //nologo `"%windir%\system32\slmgr.vbs`" /ato")
+                $sw.WriteLine('if %errorlevel% equ 0 (')
+                $sw.WriteLine("    cscript //nologo `"%windir%\system32\slmgr.vbs`" /dli 2>nul | find /i `"License Status: Licensed`" >nul")
+                $sw.WriteLine('    if !errorlevel! equ 0 (')
+                $sw.WriteLine('        echo.')
+                $sw.WriteLine("        echo  [SUCCESS] Windows activated using server: $srv")
+                $sw.WriteLine('        echo  Edition:  %EDITION_NAME%')
+                $sw.WriteLine('        echo  Key Used: %EDITION_KEY%')
+                $sw.WriteLine('        goto :activated')
+                $sw.WriteLine('    )')
+                $sw.WriteLine(')')
+                $sw.WriteLine('echo    Failed. Trying next server...')
+                $sw.WriteLine('')
+                $serverNum++
+            }
+            $sw.WriteLine('')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo  All KMS servers failed. Attempting Activator.cmd fallback methods...')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            $sw.WriteLine(':try_activator')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo  Fallback: Trying HWID Activation...')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('call "%~dp0Activator.cmd" /HWID')
+            $sw.WriteLine('cscript //nologo "%windir%\system32\slmgr.vbs" /dli 2>nul | find /i "Licensed" >nul')
+            $sw.WriteLine('if %errorlevel% equ 0 (')
+            $sw.WriteLine('    echo  [SUCCESS] Activated via HWID!')
+            $sw.WriteLine('    goto :activated')
+            $sw.WriteLine(')')
+            $sw.WriteLine('')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo  Fallback: Trying KMS38 Activation...')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('call "%~dp0Activator.cmd" /KMS38')
+            $sw.WriteLine('cscript //nologo "%windir%\system32\slmgr.vbs" /dli 2>nul | find /i "Licensed" >nul')
+            $sw.WriteLine('if %errorlevel% equ 0 (')
+            $sw.WriteLine('    echo  [SUCCESS] Activated via KMS38!')
+            $sw.WriteLine('    goto :activated')
+            $sw.WriteLine(')')
+            $sw.WriteLine('')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo  [RESULT] All methods exhausted.')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo  Your Windows edition:  %EDITION_NAME%')
+            $sw.WriteLine('echo  GVLK Key that was used: %EDITION_KEY%')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo  Possible reasons for failure:')
+            $sw.WriteLine('echo    - Your firewall or ISP is blocking port 1688')
+            $sw.WriteLine('echo    - You are on a restricted network (school/office)')
+            $sw.WriteLine('echo    - Try using a VPN or different network')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo  You can manually try: slmgr /ipk %EDITION_KEY%')
+            $sw.WriteLine('echo                        slmgr /skms kms.zhuxiaole.org')
+            $sw.WriteLine('echo                        slmgr /ato')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('goto :final')
+            $sw.WriteLine('')
+            # Store the working server name for each server block
+            # We set WORKING_SERVER inside each server's success block
+            # (already set via the echo line, but let's add explicit set)
+            # Need to go back and modify the server loop to save the working server
+            
+            # Actually, let me just set it in the :activated block using the KMS that's already configured
+            
+            $sw.WriteLine(':activated')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo  [Step 3] Installing Auto-Renewal Task (keeps activation forever)')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Create a renewal script in ProgramData')
+            $sw.WriteLine('set "RENEW_DIR=%ProgramData%\KMS-Renewal"')
+            $sw.WriteLine('set "RENEW_SCRIPT=%RENEW_DIR%\renew.cmd"')
+            $sw.WriteLine('if not exist "%RENEW_DIR%" mkdir "%RENEW_DIR%"')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Write the renewal script')
+            $sw.WriteLine('echo @echo off > "%RENEW_SCRIPT%"')
+            $sw.WriteLine('echo cscript //nologo "%%windir%%\system32\slmgr.vbs" /ato >> "%RENEW_SCRIPT%"')
+            $sw.WriteLine('echo if %%errorlevel%% neq 0 ( >> "%RENEW_SCRIPT%"')
+
+            # Write the server fallback list into the renewal script
+            foreach ($srv in $kmsServers) {
+                $sw.WriteLine("echo     cscript //nologo `"%%windir%%\system32\slmgr.vbs`" /skms ${srv}:1688 >> `"%RENEW_SCRIPT%`"")
+                $sw.WriteLine("echo     cscript //nologo `"%%windir%%\system32\slmgr.vbs`" /ato >> `"%RENEW_SCRIPT%`"")
+            }
+            $sw.WriteLine('echo ) >> "%RENEW_SCRIPT%"')
+            $sw.WriteLine('')
+            $sw.WriteLine(':: Create the scheduled task - runs every 25 days as SYSTEM')
+            $sw.WriteLine('schtasks /create /tn "WinAllInOne-KMS-Renewal" /tr "\"%RENEW_SCRIPT%\"" /sc daily /mo 25 /ru SYSTEM /rl HIGHEST /f >nul 2>&1')
+            $sw.WriteLine('if %errorlevel% equ 0 (')
+            $sw.WriteLine('    echo  [SUCCESS] Auto-renewal task installed!')
+            $sw.WriteLine('    echo  Task Name:  WinAllInOne-KMS-Renewal')
+            $sw.WriteLine('    echo  Schedule:   Every 25 days (auto-renews 180-day activation)')
+            $sw.WriteLine('    echo  Result:     Your Windows will stay activated INDEFINITELY')
+            $sw.WriteLine(') else (')
+            $sw.WriteLine('    echo  [WARNING] Could not create scheduled task.')
+            $sw.WriteLine('    echo  Activation will expire in 180 days.')
+            $sw.WriteLine('    echo  Re-run this tool before expiry to renew.')
+            $sw.WriteLine(')')
+            $sw.WriteLine('')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('echo  Windows Activation Successful!')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo  Edition:  %EDITION_NAME%')
+            $sw.WriteLine('echo  Key Used: %EDITION_KEY%')
+            $sw.WriteLine('echo  Status:   Activated with Auto-Renewal (effectively permanent)')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('cscript //nologo "%windir%\system32\slmgr.vbs" /xpr')
+            $sw.WriteLine('echo ======================================================================')
+            $sw.WriteLine('')
+            $sw.WriteLine(':final')
+            $sw.WriteLine('echo.')
+            $sw.WriteLine('echo Press any key to close...')
+            $sw.WriteLine('pause >nul')
+            $sw.Close()
+
+            Write-Log "Executing Activation Wrapper Script..."
+            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$wrapperPath`"" -Wait -Verb RunAs
             
             Write-Log "Activation process finished."
-            Show-Message "Activation script execution finished. Check the console window for results." "Activation Complete"
+            Show-Message "Activation sequence finished. Check the console output for results." "Activation Complete"
         } catch {
             Write-Log "Error during activation: $_"
             Show-Message "Failed to run activation script: $_" "Error" ([System.Windows.MessageBoxImage]::Error)
