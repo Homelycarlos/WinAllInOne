@@ -56,7 +56,9 @@ Write-Host "Injected Main Logic" -ForegroundColor Green
 
 # 5. Output Final Script
 $outputFile = Join-Path $workingDir "WinAllInOne.ps1"
-Set-Content -Path $outputFile -Value ($script_content -join "`r`n") -Encoding utf8
+$finalContent = $script_content -join "`r`n"
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($outputFile, $finalContent, $utf8NoBom)
 
 Write-Host "Compilation Complete! File saved to: $outputFile" -ForegroundColor Yellow
 Write-Host "File size: $((Get-Item $outputFile).Length / 1KB) KB" -ForegroundColor Cyan

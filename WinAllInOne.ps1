@@ -1,4 +1,4 @@
-﻿$sync = [Hashtable]::Synchronized(@{})
+$sync = [Hashtable]::Synchronized(@{})
 $sync.configs = @{}
 $sync.configs.applications = @'
 {
@@ -7492,4 +7492,3 @@ $appCount = @($appsObj.PSObject.Properties).Count
 $tweakCount = @($tweaksObj.PSObject.Properties).Count
 Write-Log "WinAllInOne Loaded with $appCount Apps and $tweakCount Tweaks."
 $window.ShowDialog() | Out-Null
-
