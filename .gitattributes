@@ -1,2 +1,1 @@
-src/scripts/Activator.cmd binary
-src/scripts/MAS_AIO.cmd binary
+src/scripts/*.cmd binary

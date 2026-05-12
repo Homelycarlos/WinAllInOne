@@ -726,49 +726,70 @@ $window.FindName("btnConfigPrograms").Add_Click({ Start-Process "appwiz.cpl" })
 
 $window.FindName("btnActivateWindows").Add_Click({
     $edition = (Get-WmiObject Win32_OperatingSystem).Caption
+    $buildNumber = [int](Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").CurrentBuildNumber
     Write-Log "Detected Windows Edition: $edition"
-    Write-Log "Starting HWID Permanent Activation via MAS..."
+    Write-Log "Detected Build Number: $buildNumber"
     
-    # Try embedded MAS_AIO.cmd first, fall back to Activator.cmd
-    $scriptName = $null
-    if ($sync.scripts.ContainsKey("MAS_AIO.cmd")) {
-        $scriptName = "MAS_AIO.cmd"
-    } elseif ($sync.scripts.ContainsKey("Activator.cmd")) {
-        $scriptName = "Activator.cmd"
+    # Determine best activation method based on Windows version
+    # HWID = Permanent, Windows 10/11 only (build 10240+)
+    # TSforge = Permanent, any Windows/Office/ESU
+    # MAS_AIO = All-in-one fallback
+    
+    $methods = @()
+    
+    if ($buildNumber -ge 10240) {
+        # Windows 10/11 — HWID is the best (permanent digital license)
+        Write-Log "Windows 10/11 detected — HWID activation is optimal (permanent)."
+        if ($sync.scripts.ContainsKey("HWID_Activation.cmd")) { $methods += @{Name="HWID_Activation.cmd"; Flag="/HWID"; Desc="HWID (Permanent Digital License)"} }
+        if ($sync.scripts.ContainsKey("TSforge_Activation.cmd")) { $methods += @{Name="TSforge_Activation.cmd"; Flag="/TSforge"; Desc="TSforge (Permanent)"} }
+    } else {
+        # Older Windows — TSforge is the best option
+        Write-Log "Older Windows detected — TSforge activation is optimal (permanent)."
+        if ($sync.scripts.ContainsKey("TSforge_Activation.cmd")) { $methods += @{Name="TSforge_Activation.cmd"; Flag="/TSforge"; Desc="TSforge (Permanent)"} }
     }
     
-    if ($scriptName) {
+    # Always add MAS_AIO and Activator.cmd as final fallbacks
+    if ($sync.scripts.ContainsKey("MAS_AIO.cmd")) { $methods += @{Name="MAS_AIO.cmd"; Flag="/HWID"; Desc="MAS AIO - HWID"} }
+    if ($sync.scripts.ContainsKey("Activator.cmd")) { $methods += @{Name="Activator.cmd"; Flag="/HWID"; Desc="Bundled Activator - HWID"} }
+    
+    $activated = $false
+    
+    foreach ($method in $methods) {
+        Write-Log "Trying: $($method.Desc) using $($method.Name)..."
         try {
-            $masPath = Join-Path $env:TEMP $scriptName
+            $scriptPath = Join-Path $env:TEMP $method.Name
             
-            # Decode base64 and write raw bytes (preserves CRLF line endings exactly)
-            $base64 = $sync.scripts[$scriptName]
+            # Decode base64 and write raw bytes (preserves CRLF exactly)
+            $base64 = $sync.scripts[$method.Name]
             $bytes = [System.Convert]::FromBase64String($base64)
-            [System.IO.File]::WriteAllBytes($masPath, $bytes)
+            [System.IO.File]::WriteAllBytes($scriptPath, $bytes)
             
-            Write-Log "Executing $scriptName with /HWID flag..."
-            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$masPath`" /HWID" -Wait -Verb RunAs
+            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$scriptPath`" $($method.Flag)" -Wait -Verb RunAs
             
-            Write-Log "Activation process finished."
-            Show-Message "HWID Activation complete!`n`nIf successful, your Windows is now permanently activated with a digital license tied to your hardware." "Activation Complete"
-        } catch {
-            Write-Log "Embedded script failed: $_. Trying online fallback..."
-            try {
-                Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
-                Write-Log "Fallback activation finished."
-                Show-Message "Activation finished. Select HWID from the menu if prompted." "Activation Complete"
-            } catch {
-                Write-Log "All methods failed: $_"
-                Show-Message "Activation failed. Run this manually in Admin PowerShell:`n`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
+            # Check if activation succeeded
+            $slmgrOut = cscript //nologo "$env:windir\system32\slmgr.vbs" /dli 2>&1 | Out-String
+            if ($slmgrOut -match "License Status\s*:\s*Licensed") {
+                Write-Log "SUCCESS! Windows activated via $($method.Desc)"
+                $activated = $true
+                Show-Message "Windows permanently activated!`n`nMethod: $($method.Desc)`nEdition: $edition`n`nThis activation is tied to your hardware and will survive reinstalls." "Activation Successful"
+                break
+            } else {
+                Write-Log "$($method.Desc) completed but license status not confirmed. Trying next method..."
             }
+        } catch {
+            Write-Log "$($method.Desc) failed: $_. Trying next method..."
         }
-    } else {
-        Write-Log "No activation script found. Using online method..."
+    }
+    
+    if (-not $activated) {
+        Write-Log "All embedded methods attempted. Trying online MAS fallback..."
         try {
             Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
-            Show-Message "Activation finished." "Activation Complete"
+            Write-Log "Online activation finished."
+            Show-Message "Activation sequence finished. Select HWID from the menu if prompted." "Activation Complete"
         } catch {
-            Show-Message "Activation failed. Run manually:`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
+            Write-Log "All methods exhausted."
+            Show-Message "Activation failed. Run this manually in Admin PowerShell:`n`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
         }
     }
 })
