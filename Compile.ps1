@@ -31,10 +31,12 @@ $scriptsDir = Join-Path $workingDir "src\scripts"
 if (Test-Path $scriptsDir) {
     Get-ChildItem $scriptsDir -File | ForEach-Object {
         $bytes = [System.IO.File]::ReadAllBytes($_.FullName)
-        $base64 = [System.Convert]::ToBase64String($bytes)
+        $base64 = [System.Convert]::ToBase64String($bytes, [System.Base64FormattingOptions]::InsertLineBreaks)
         $name = $_.Name
         $script_content.Add(@"
-`$sync.scripts['$name'] = '$base64'
+`$sync.scripts['$name'] = @'
+$base64
+'@
 "@)
         Write-Host "Injected script: $name (Base64)" -ForegroundColor Green
     }
