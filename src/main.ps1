@@ -730,66 +730,77 @@ $window.FindName("btnActivateWindows").Add_Click({
     Write-Log "Detected Windows Edition: $edition"
     Write-Log "Detected Build Number: $buildNumber"
     
-    # Determine best activation method based on Windows version
-    # HWID = Permanent, Windows 10/11 only (build 10240+)
-    # TSforge = Permanent, any Windows/Office/ESU
-    # MAS_AIO = All-in-one fallback
-    
     $methods = @()
     
     if ($buildNumber -ge 10240) {
-        # Windows 10/11 — HWID is the best (permanent digital license)
-        Write-Log "Windows 10/11 detected — HWID activation is optimal (permanent)."
-        if ($sync.scripts.ContainsKey("HWID_Activation.cmd")) { $methods += @{Name="HWID_Activation.cmd"; Flag="/HWID"; Desc="HWID (Permanent Digital License)"} }
-        if ($sync.scripts.ContainsKey("TSforge_Activation.cmd")) { $methods += @{Name="TSforge_Activation.cmd"; Flag="/TSforge"; Desc="TSforge (Permanent)"} }
+        Write-Log "Windows 10/11 detected - HWID activation is optimal (permanent)."
+        if ($sync.scripts.ContainsKey("HWID_Activation.cmd")) {
+            $m = @{}; $m.Name = "HWID_Activation.cmd"; $m.Flag = "/HWID"; $m.Desc = "HWID (Permanent Digital License)"
+            $methods += $m
+        }
+        if ($sync.scripts.ContainsKey("TSforge_Activation.cmd")) {
+            $m = @{}; $m.Name = "TSforge_Activation.cmd"; $m.Flag = "/TSforge"; $m.Desc = "TSforge (Permanent)"
+            $methods += $m
+        }
     } else {
-        # Older Windows — TSforge is the best option
-        Write-Log "Older Windows detected — TSforge activation is optimal (permanent)."
-        if ($sync.scripts.ContainsKey("TSforge_Activation.cmd")) { $methods += @{Name="TSforge_Activation.cmd"; Flag="/TSforge"; Desc="TSforge (Permanent)"} }
+        Write-Log "Older Windows detected - TSforge activation is optimal (permanent)."
+        if ($sync.scripts.ContainsKey("TSforge_Activation.cmd")) {
+            $m = @{}; $m.Name = "TSforge_Activation.cmd"; $m.Flag = "/TSforge"; $m.Desc = "TSforge (Permanent)"
+            $methods += $m
+        }
     }
     
-    # Always add MAS_AIO and Activator.cmd as final fallbacks
-    if ($sync.scripts.ContainsKey("MAS_AIO.cmd")) { $methods += @{Name="MAS_AIO.cmd"; Flag="/HWID"; Desc="MAS AIO - HWID"} }
-    if ($sync.scripts.ContainsKey("Activator.cmd")) { $methods += @{Name="Activator.cmd"; Flag="/HWID"; Desc="Bundled Activator - HWID"} }
+    if ($sync.scripts.ContainsKey("MAS_AIO.cmd")) {
+        $m = @{}; $m.Name = "MAS_AIO.cmd"; $m.Flag = "/HWID"; $m.Desc = "MAS AIO - HWID"
+        $methods += $m
+    }
+    if ($sync.scripts.ContainsKey("Activator.cmd")) {
+        $m = @{}; $m.Name = "Activator.cmd"; $m.Flag = "/HWID"; $m.Desc = "Bundled Activator - HWID"
+        $methods += $m
+    }
     
     $activated = $false
     
     foreach ($method in $methods) {
-        Write-Log "Trying: $($method.Desc) using $($method.Name)..."
+        $mName = $method.Name
+        $mFlag = $method.Flag
+        $mDesc = $method.Desc
+        Write-Log "Trying: $mDesc using $mName..."
         try {
-            $scriptPath = Join-Path $env:TEMP $method.Name
+            $scriptPath = Join-Path $env:TEMP $mName
             
-            # Decode base64 and write raw bytes (preserves CRLF exactly)
-            $base64 = $sync.scripts[$method.Name]
+            $base64 = $sync.scripts[$mName]
             $bytes = [System.Convert]::FromBase64String($base64)
             [System.IO.File]::WriteAllBytes($scriptPath, $bytes)
             
-            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$scriptPath`" $($method.Flag)" -Wait -Verb RunAs
+            $cmdArgs = "/c `"$scriptPath`" $mFlag"
+            Start-Process -FilePath "cmd.exe" -ArgumentList $cmdArgs -Wait -Verb RunAs
             
             # Check if activation succeeded
-            $slmgrOut = cscript //nologo "$env:windir\system32\slmgr.vbs" /dli 2>&1 | Out-String
-            if ($slmgrOut -match "License Status\s*:\s*Licensed") {
-                Write-Log "SUCCESS! Windows activated via $($method.Desc)"
-                $activated = $true
-                Show-Message "Windows permanently activated!`n`nMethod: $($method.Desc)`nEdition: $edition`n`nThis activation is tied to your hardware and will survive reinstalls." "Activation Successful"
-                break
-            } else {
-                Write-Log "$($method.Desc) completed but license status not confirmed. Trying next method..."
+            $slmgrOut = cscript //nologo "$env:windir\system32\slmgr.vbs" /dli 2>$null | Out-String
+            if ($slmgrOut -match 'License Status') {
+                if ($slmgrOut -match 'Licensed') {
+                    Write-Log "SUCCESS! Windows activated via $mDesc"
+                    $activated = $true
+                    Show-Message "Windows permanently activated via $mDesc" "Activation Successful"
+                    break
+                }
             }
+            Write-Log "$mDesc completed but license not confirmed. Trying next..."
         } catch {
-            Write-Log "$($method.Desc) failed: $_. Trying next method..."
+            Write-Log "$mDesc failed. Trying next method..."
         }
     }
     
     if (-not $activated) {
         Write-Log "All embedded methods attempted. Trying online MAS fallback..."
         try {
-            Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
+            Start-Process powershell -ArgumentList '-NoProfile -ExecutionPolicy Bypass -Command "irm https://get.activated.win | iex"' -Verb RunAs -Wait
             Write-Log "Online activation finished."
-            Show-Message "Activation sequence finished. Select HWID from the menu if prompted." "Activation Complete"
+            Show-Message "Activation sequence finished." "Activation Complete"
         } catch {
             Write-Log "All methods exhausted."
-            Show-Message "Activation failed. Run this manually in Admin PowerShell:`n`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
+            Show-Message "Run manually in Admin PowerShell: irm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
         }
     }
 })
