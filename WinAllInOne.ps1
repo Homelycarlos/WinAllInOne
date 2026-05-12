@@ -6523,30 +6523,53 @@ $window.FindName("btnConfigPrograms").Add_Click({ Start-Process "appwiz.cpl" })
 $window.FindName("btnActivateWindows").Add_Click({
     $edition = (Get-WmiObject Win32_OperatingSystem).Caption
     Write-Log "Detected Windows Edition: $edition"
-    Write-Log "Initializing Universal Activation (Direct + Fallback)..."
+    Write-Log "Downloading latest Microsoft Activation Scripts (MAS)..."
     
-    if ($sync.scripts.ContainsKey("Activator.cmd")) {
-        try {
-            $tempDir = $env:TEMP
-            $activatorPath = Join-Path $tempDir "Activator.cmd"
-            $wrapperPath = Join-Path $tempDir "RunActivator.cmd"
-            
-            $base64 = $sync.scripts["Activator.cmd"]
-            $bytes = [System.Convert]::FromBase64String($base64)
-            [System.IO.File]::WriteAllBytes($activatorPath, $bytes)
-            
-            Write-Log "Executing HWID Activation Script..."
-            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$activatorPath`" /HWID" -Wait -Verb RunAs
-            
-            Write-Log "Activation process finished."
-            Show-Message "Activation sequence finished. Check the console output for results." "Activation Complete"
-        } catch {
-            Write-Log "Error during activation: $_"
-            Show-Message "Failed to run activation script: $_" "Error" ([System.Windows.MessageBoxImage]::Error)
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $masUrl = "https://raw.githubusercontent.com/massgravel/Microsoft-Activation-Scripts/master/MAS/All-In-One-Version-KL/MAS_AIO.cmd"
+        $masPath = Join-Path $env:TEMP "MAS_AIO.cmd"
+        
+        Write-Log "Fetching MAS from official source..."
+        $masContent = (New-Object Net.WebClient).DownloadString($masUrl)
+        
+        # Ensure proper CRLF line endings (MAS self-check requires this)
+        $masContent = $masContent -replace "`r`n", "`n"
+        $masContent = $masContent -replace "`n", "`r`n"
+        
+        # Ensure empty line at end of script (MAS self-check requires this)
+        if (-not $masContent.EndsWith("`r`n`r`n")) {
+            $masContent += "`r`n"
         }
-    } else {
-        Write-Log "Error: Activation script not found in embedded resources."
-        Show-Message "Activation script missing from bundle." "Error" ([System.Windows.MessageBoxImage]::Error)
+        
+        # Write with ASCII encoding to avoid BOM issues
+        [System.IO.File]::WriteAllText($masPath, $masContent, [System.Text.Encoding]::ASCII)
+        
+        Write-Log "Executing HWID Activation (Permanent Digital License)..."
+        Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$masPath`" /HWID" -Wait -Verb RunAs
+        
+        # Check activation status after
+        $slmgrOutput = cscript //nologo "$env:windir\system32\slmgr.vbs" /dli 2>&1
+        if ($slmgrOutput -match "Licensed") {
+            Write-Log "Windows is now permanently activated!"
+            Show-Message "Windows has been permanently activated with a digital license!`n`nThis activation is tied to your hardware and will survive reinstalls." "Activation Successful"
+        } else {
+            Write-Log "Activation process finished. Please check if the watermark is gone."
+            Show-Message "Activation sequence finished. Check the console output for results." "Activation Complete"
+        }
+    } catch {
+        Write-Log "Error during activation: $_"
+        Write-Log "Trying fallback method..."
+        
+        # Fallback: use irm | iex method (opens interactive MAS menu)
+        try {
+            Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
+            Write-Log "Fallback activation process finished."
+            Show-Message "Activation sequence finished. If HWID was selected, your Windows is now permanently activated." "Activation Complete"
+        } catch {
+            Write-Log "All activation methods failed: $_"
+            Show-Message "Activation failed. Please run this command manually in an Admin PowerShell:`n`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
+        }
     }
 })
 
