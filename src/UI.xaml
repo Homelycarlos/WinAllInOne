@@ -319,11 +319,7 @@
                                 <CheckBox Name="chkDbFacebook" Content="Facebook" Tag="*Facebook*" />
                             </WrapPanel>
                             
-                            <TextBlock Text="Danger Zone" Style="{StaticResource HeaderStyle}" Foreground="#C42B1C" Margin="0,30,0,10" />
-                            <CheckBox Name="chkDebloatOneDrive" Content="Uninstall OneDrive completely" Width="500" />
-                            <CheckBox Name="chkDebloatCortana" Content="Uninstall Cortana" Width="500" />
-                            <CheckBox Name="chkDebloatEdge" Content="Disable Edge completely (Aggressive)" Width="500" />
-                            <CheckBox Name="chkDebloatDefender" Content="Disable Windows Defender (NOT RECOMMENDED)" Width="500" Foreground="#C42B1C" />
+
                             
                             <StackPanel Height="80" /> <!-- Spacer -->
                         </StackPanel>
