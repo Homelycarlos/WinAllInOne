@@ -729,31 +729,46 @@ $window.FindName("btnActivateWindows").Add_Click({
     Write-Log "Detected Windows Edition: $edition"
     Write-Log "Starting HWID Permanent Activation via MAS..."
     
-    try {
-        # Use the official MAS PowerShell method - this handles line endings internally
-        # and never writes a .cmd file, avoiding all corruption issues
-        $masCommand = @'
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $response = Invoke-RestMethod -Uri 'https://get.activated.win'
-        $scriptBlock = [ScriptBlock]::Create($response)
-        & $scriptBlock /HWID
-'@
-        Write-Log "Launching MAS HWID activation in elevated PowerShell..."
-        Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command $masCommand" -Verb RunAs -Wait
-        
-        Write-Log "Activation process finished."
-        Show-Message "HWID Activation sequence complete!`n`nIf successful, your Windows is now permanently activated with a digital license tied to your hardware.`n`nThe 'Activate Windows' watermark should disappear shortly." "Activation Complete"
-    } catch {
-        Write-Log "Primary method failed: $_. Trying fallback..."
-        
+    # Try embedded MAS_AIO.cmd first, fall back to Activator.cmd
+    $scriptName = $null
+    if ($sync.scripts.ContainsKey("MAS_AIO.cmd")) {
+        $scriptName = "MAS_AIO.cmd"
+    } elseif ($sync.scripts.ContainsKey("Activator.cmd")) {
+        $scriptName = "Activator.cmd"
+    }
+    
+    if ($scriptName) {
         try {
-            # Fallback: launch MAS interactive menu
-            Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
-            Write-Log "Fallback activation finished."
-            Show-Message "Activation finished. Select HWID from the menu if prompted." "Activation Complete"
+            $masPath = Join-Path $env:TEMP $scriptName
+            
+            # Decode base64 and write raw bytes (preserves CRLF line endings exactly)
+            $base64 = $sync.scripts[$scriptName]
+            $bytes = [System.Convert]::FromBase64String($base64)
+            [System.IO.File]::WriteAllBytes($masPath, $bytes)
+            
+            Write-Log "Executing $scriptName with /HWID flag..."
+            Start-Process -FilePath "cmd.exe" -ArgumentList "/c `"$masPath`" /HWID" -Wait -Verb RunAs
+            
+            Write-Log "Activation process finished."
+            Show-Message "HWID Activation complete!`n`nIf successful, your Windows is now permanently activated with a digital license tied to your hardware." "Activation Complete"
         } catch {
-            Write-Log "All methods failed: $_"
-            Show-Message "Activation failed. Run this manually in Admin PowerShell:`n`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
+            Write-Log "Embedded script failed: $_. Trying online fallback..."
+            try {
+                Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
+                Write-Log "Fallback activation finished."
+                Show-Message "Activation finished. Select HWID from the menu if prompted." "Activation Complete"
+            } catch {
+                Write-Log "All methods failed: $_"
+                Show-Message "Activation failed. Run this manually in Admin PowerShell:`n`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
+            }
+        }
+    } else {
+        Write-Log "No activation script found. Using online method..."
+        try {
+            Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"irm https://get.activated.win | iex`"" -Verb RunAs -Wait
+            Show-Message "Activation finished." "Activation Complete"
+        } catch {
+            Show-Message "Activation failed. Run manually:`nirm https://get.activated.win | iex" "Error" ([System.Windows.MessageBoxImage]::Error)
         }
     }
 })
